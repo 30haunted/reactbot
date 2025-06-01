@@ -2,10 +2,9 @@ import discord
 import re
 import asyncio
 
-TOKEN = "YOUR_USER_TOKEN_HERE"
+TOKEN = "YOUR_TOKEN_HERE"  # Replace with your real user token
 
 client = discord.Client(self_bot=True)
-
 active_reactions = {}
 
 @client.event
@@ -14,18 +13,23 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    # Only respond to commands you send
     if message.author == client.user:
         content = message.content.strip()
 
-        # Stop react command
+        # Stop all reactions
+        if re.match(r'^stop\s+react$', content, re.IGNORECASE):
+            active_reactions.clear()
+            await message.channel.send("`Stopped reacting to all users.`")
+            return
+
+        # Stop reaction to a specific user
         if re.match(r'^stop\s+react\s+<@!?(\d+)>$', content, re.IGNORECASE):
             user_id = int(re.search(r'<@!?(\d+)>', content).group(1))
             active_reactions.pop(user_id, None)
             await message.channel.send("`Stopped reacting to them.`")
             return
 
-        # React command
+        # Start reacting to a user
         if re.match(r'^react\s+<@!?(\d+)>', content, re.IGNORECASE):
             user_id = int(re.search(r'<@!?(\d+)>', content).group(1))
             emoji_part = content.split(maxsplit=2)[-1]
@@ -43,7 +47,7 @@ async def on_message(message):
             await message.channel.send("`Started reacting.`")
             return
 
-    # React to messages by tracked users, in any channel (guild or DM)
+    # React to new messages from tracked users
     author_id = message.author.id
     if author_id in active_reactions:
         for emoji_str in active_reactions[author_id]:
