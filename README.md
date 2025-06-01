@@ -20,3 +20,16 @@ A very simple SelfBot that allows auto reactions and has the ability to mass rea
 ```txt
 react @user 😄
 stop react @user
+```
+## Installation
+
+Install Python 3.12.0 (or any version after that)
+Make sure to check the box that says "Add Python to PATH" during installation.
+
+Once Python has been installed open a command prompt and type in
+pip install discord.py-self==1.9.3
+
+Download the reactbot.py
+You will then need to find your token, there are plenty tutorials for this online
+
+Place the token in the area of the code that says ```TOKEN = "YOUR_USER_TOKEN_HERE"``` and then run the reactbot
