@@ -1,4 +1,4 @@
-# Discord Selfbot Auto-Reactor 🤖💬
+# Discord ReactBot SelfBot 🤖💬
 
 A very simple SelfBot that allows auto reactions and has the ability to mass react with multiple emojis
 
