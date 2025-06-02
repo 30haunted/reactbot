@@ -9,18 +9,20 @@ A very simple SelfBot that allows auto reactions and has the ability to mass rea
 
 ### Commands
 
-- `react @username 😄`  
-  Begins reacting to future messages from the mentioned user with the specified emojis.
+| **Command**         | **Description**                                                                  |
+| ------------------- | -------------------------------------------------------------------------------- |
+| `react @user 😄👍`  | Starts auto-reacting to messages by a user with the specified emoji(s).          |                         
+| `sr`                | Stops **all** active reactions and reacts with ✅ to your message.                |
+| `wi <@user or ID>`  | Displays info about a user including permissions, join date, etc.                |
+| `si`                | Shows server info like name, owner, member count, roles, channels, etc.          |
+| `dw`                | Deletes previous output messages from `wi` or `si` and reacts with ✅.            |
+| `av <@user or ID>`  | Sends the **global profile picture** of the user in 500x500 resolution.          |
+| `sav <@user or ID>` | Sends the **server-specific profile picture** (supports GIFs if set) in 500x500. |
+| `gif`               | Converts the latest attached or replied image to a GIF and sends it.             |
+| `quit`              | Prompts confirmation and shuts down the selfbot if confirmed.                    |
 
-- `stop react @username`  
-  Stops reacting to that user's messages.
 
-### Example
 
-```txt
-react @user 😄
-stop react @user
-```
 ## Installation
 
 Install Python 3.12.4 (or any version after that)
