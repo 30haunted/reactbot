@@ -28,7 +28,7 @@ A very simple SelfBot that allows auto reactions and has the ability to mass rea
 Install Python 3.12.4 (or any version after that)
 Make sure to check the box that says "Add Python to PATH" during installation.
 
-Open command prompt and type `git clone https://github.com/your-username/reactbot.git` then `cd reactbot` and `pip install -r requirements.txt`
+Open command prompt and type `git clone https://github.com/30haunted/reactbot.git` then `cd reactbot` and `pip install -r requirements.txt`
 
 Once you have done that, press Windows Key and R at the same time and type `%USERPROFILE%/ReactBot`
 
