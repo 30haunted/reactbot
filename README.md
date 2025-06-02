@@ -28,10 +28,8 @@ A very simple SelfBot that allows auto reactions and has the ability to mass rea
 Install Python 3.12.4 (or any version after that)
 Make sure to check the box that says "Add Python to PATH" during installation.
 
-Once Python has been installed open a command prompt and type in
-pip install discord.py-self==1.9.3
+Open command prompt and type `git clone https://github.com/your-username/reactbot.git` then `cd reactbot` and `pip install -r requirements.txt`
 
-Download the reactbot.py
-You will then need to find your token, there are plenty tutorials for this online
+Once you have done that, press Windows Key and R at the same time and type `%USERPROFILE%/ReactBot`
 
-Place the token in the area of the code that says ```TOKEN = "YOUR_USER_TOKEN_HERE"``` and then run the reactbot
+Open the ENV file in any text editor and place the token in the area of the code that says ```TOKEN = "YOUR_USER_TOKEN_HERE"``` and then run the reactbot
