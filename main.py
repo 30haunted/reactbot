@@ -7,7 +7,6 @@ import io
 import aiohttp
 from PIL import Image
 from dotenv import load_dotenv
-from bs4 import BeautifulSoup
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
@@ -15,8 +14,6 @@ TOKEN = os.getenv("TOKEN")
 client = discord.Client(self_bot=True)
 
 active_reactions = {}
-last_wi_message = None
-last_si_message = None
 
 @client.event
 async def on_ready():
@@ -24,8 +21,6 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    global last_wi_message, last_si_message
-
     if message.author != client.user:
         author_id = message.author.id
         if author_id in active_reactions:
@@ -36,7 +31,8 @@ async def on_message(message):
                     await asyncio.sleep(0.75)
                 except discord.errors.HTTPException as e:
                     if e.status == 429:
-                        print("[Rate Limited] Waiting before retrying reaction.")
+                        print("Rate limited while reacting. Waiting...")
+                        await asyncio.sleep(5)
                     continue
         return
 
@@ -114,12 +110,11 @@ async def on_message(message):
             if member:
                 user_info += f"[Nickname] {member.nick or 'None'}\n"
                 user_info += f"[Joined Server] {member.joined_at.strftime('%Y-%m-%d %H:%M:%S')}\n"
-
                 perms = [perm[0].replace('_', ' ').title() for perm in member.guild_permissions if perm[1]]
                 user_info += f"[Permissions] {', '.join(perms) if perms else 'None'}\n"
 
             user_info += "```"
-            last_wi_message = await message.channel.send(user_info)
+            await message.channel.send(user_info)
         except Exception:
             await message.channel.send("`Could not fetch user info.`")
         return
@@ -138,31 +133,17 @@ async def on_message(message):
         info += f"[Roles] {len(guild.roles)}\n"
         info += f"```"
 
-        last_si_message = await message.channel.send(info)
+        await message.channel.send(info)
         return
 
     if content == "dw":
-        deleted_any = False
-        try:
-            if last_wi_message:
-                await last_wi_message.delete()
-                last_wi_message = None
-                deleted_any = True
-        except Exception as e:
-            await message.channel.send(f"`Failed to delete wi message: {e}`")
-
-        try:
-            if last_si_message:
-                await last_si_message.delete()
-                last_si_message = None
-                deleted_any = True
-        except Exception as e:
-            await message.channel.send(f"`Failed to delete si message: {e}`")
-
-        if deleted_any:
-            await message.add_reaction("✅")
-        else:
-            await message.channel.send("`No wi or si message to delete.`")
+        async for msg in message.channel.history(limit=50):
+            if msg.author == client.user and (msg.content.startswith("```ini") or "[Server Name]" in msg.content):
+                try:
+                    await msg.delete()
+                except Exception:
+                    pass
+        await message.add_reaction("✅")
         return
 
     if content == "gif":
@@ -207,43 +188,35 @@ async def on_message(message):
             await message.channel.send(f"`GIF conversion failed: {e}`")
         return
 
-    if content == "tt":
-        tiktok_url = None
-
-        async for msg in message.channel.history(limit=10):
-            urls = re.findall(r'(https?://(?:www\.)?tiktok\.com/\S+)', msg.content)
-            if urls:
-                tiktok_url = urls[0]
-                break
-
-        if not tiktok_url:
-            await message.channel.send("`No TikTok URL found in the message.`")
-            return
-
+    match = re.match(r'^av\s+(<@!?(\d+)>|(\d+))$', content)
+    if match:
+        user_id = int(match.group(2) or match.group(3))
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(tiktok_url, headers={"User-Agent": "Mozilla/5.0"}) as resp:
-                    html = await resp.text()
+            user = await client.fetch_user(user_id)
+            if user.avatar:
+                fmt = "gif" if user.avatar.is_animated() else "png"
+                url = user.avatar.replace(format=fmt, size=512).url
+            else:
+                url = user.default_avatar.replace(size=512).url
+            await message.channel.send(url)
+        except Exception:
+            await message.channel.send("User not found.")
+        return
 
-            soup = BeautifulSoup(html, "html.parser")
-            video_tag = soup.find("meta", property="og:video")
-            video_url = video_tag["content"] if video_tag else None
-
-            if not video_url:
-                await message.channel.send("`No MP4 URL found on TikTok page.`")
-                return
-
-            async with aiohttp.ClientSession() as session:
-                async with session.get(video_url) as resp:
-                    if resp.status != 200:
-                        await message.channel.send("`Failed to fetch TikTok video.`")
-                        return
-                    video_bytes = await resp.read()
-
-            await message.channel.send(file=discord.File(io.BytesIO(video_bytes), filename="tiktok.mp4"))
-
-        except Exception as e:
-            await message.channel.send(f"`Error while processing TikTok: {e}`")
+    match = re.match(r'^sav\s+(<@!?(\d+)>|(\d+))$', content)
+    if match and message.guild:
+        user_id = int(match.group(2) or match.group(3))
+        try:
+            member = message.guild.get_member(user_id) or await message.guild.fetch_member(user_id)
+            avatar = member.avatar
+            if avatar:
+                fmt = "gif" if avatar.is_animated() else "png"
+                url = avatar.replace(format=fmt, size=512).url
+            else:
+                url = member.default_avatar.replace(size=512).url
+            await message.channel.send(url)
+        except Exception:
+            await message.channel.send("User not found.")
         return
 
 client.run(TOKEN)
