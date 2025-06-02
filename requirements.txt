@@ -1,0 +1,4 @@
+discord.py-self==1.9.3
+aiohttp
+python-dotenv
+pillow
